@@ -1,12 +1,55 @@
 let currentItems = [];
 
-// Tab Navigation
+// Initialize System on Load
+function initSystem() {
+    // Load Default Rules if none exist
+    const defaultRules = `ખાસ સુચના:-
+૧. મોબાઈલ ની વોરંટી ના નિયમો મુજબ, જે તે કંપની ના સર્વિસ સ્ટેશન દ્વારા પતાવાની રહેશે.
+૨. વોરંટી માટે બિલ ની કોપી સાથે રાખવી અનિવાર્ય છે.
+૩. નવી ખામી વાળા ભાગો બિલ વગર બદલી આપવામાં આવશે નહિ.
+૪. મોબાઈલ માં પાણી જવાથી કે મોબાઈલ પડી જવાથી વાંક થવાની જવાબદારી રહેશે નહિ.
+૫. ખરાબ થયેલ મોબાઈલ બિલ વગર કોઈ પણ સંજોગોમાં બદલી કે પાછો લેવામાં આવશે નહિ.
+વોરંટી ના નિયમો:-
+૧. ફોન ના ડબ્બા માં IMEI નંબર હોવો ફરજીયાત છે. નહિ તો કોઈ વોરંટી મળશે નહિ.
+૨. વોરંટી દરમિયાન સ્ક્રીન તૂટવાની જવાબદારી કોઈ પણ સંજોગોમાં રહેશે નહિ.`;
+    
+    if(!localStorage.getItem('kmz_rules')) {
+        localStorage.setItem('kmz_rules', defaultRules);
+    }
+    document.getElementById('rulesInput').value = localStorage.getItem('kmz_rules');
+    generateBillNumber();
+}
+
+// Auto Bill Number Logic (e.g., K15M1)
+function generateBillNumber() {
+    const d = new Date();
+    const dateNum = String(d.getDate()).padStart(2, '0');
+    const monthChar = d.toLocaleString('en-US', { month: 'short' })[0].toUpperCase(); // 'M' for March
+    const todayStr = d.toDateString();
+
+    const db = JSON.parse(localStorage.getItem('kmz_db')) || [];
+    // Count how many bills were made TODAY
+    const todaysBills = db.filter(b => b.dateStr === todayStr).length;
+    const nextSeq = todaysBills + 1;
+
+    document.getElementById('inBillNo').value = `K${dateNum}${monthChar}${nextSeq}`;
+}
+
+// Tab Switching
 function switchTab(tab) {
     document.getElementById('newBillSection').style.display = tab === 'newBill' ? 'block' : 'none';
     document.getElementById('historySection').style.display = tab === 'history' ? 'block' : 'none';
-    document.getElementById('tab-new').className = tab === 'newBill' ? 'tab-btn active' : 'tab-btn';
-    document.getElementById('tab-hist').className = tab === 'history' ? 'tab-btn active' : 'tab-btn';
-    if(tab === 'history') showHistory();
+    document.getElementById('settingsSection').style.display = tab === 'settings' ? 'block' : 'none';
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    if(tab === 'newBill') document.getElementById('tab-new').classList.add('active');
+    if(tab === 'history') { document.getElementById('tab-hist').classList.add('active'); showHistory(); }
+    if(tab === 'settings') document.getElementById('tab-set').classList.add('active');
+}
+
+function saveRules() {
+    localStorage.setItem('kmz_rules', document.getElementById('rulesInput').value);
+    alert("Rules updated! They will appear on all future prints.");
 }
 
 function toggleCredit() {
@@ -14,40 +57,26 @@ function toggleCredit() {
 }
 
 function addItem() {
-    const item = {
-        name: document.getElementById('inItem').value,
-        imei: document.getElementById('inIMEI').value,
-        total: parseFloat(document.getElementById('inPrice').value) || 0
-    };
+    const item = { name: document.getElementById('inItem').value, imei: document.getElementById('inIMEI').value, total: parseFloat(document.getElementById('inPrice').value) || 0 };
     if(item.name && item.total) {
         currentItems.push(item);
-        document.getElementById('inItem').value = '';
-        document.getElementById('inIMEI').value = '';
-        document.getElementById('inPrice').value = '';
-        renderBills(); // Preview bill
-        alert("Item Added! You can add another or click Save & Print.");
-    } else {
-        alert("Please enter Model Name and Price.");
+        document.getElementById('inItem').value = ''; document.getElementById('inIMEI').value = ''; document.getElementById('inPrice').value = '';
+        renderBills(); 
     }
 }
 
+// Build the Print Layout
 function renderBills() {
     const name = document.getElementById('inCustName').value || "________________";
     const mob = document.getElementById('inCustMob').value || "________________";
-    const billNo = document.getElementById('inBillNo').value || "K---";
+    const billNo = document.getElementById('inBillNo').value;
     const date = new Date().toLocaleDateString('en-GB');
     const payMode = document.getElementById('payMode').value;
+    const rulesText = localStorage.getItem('kmz_rules').replace(/\n/g, '<br>'); // Convert newlines to HTML breaks
     
     let grandTotal = currentItems.reduce((a,b) => a + b.total, 0);
-    let paidAmt = grandTotal;
-    let dueAmt = 0;
-    let dueText = "";
-
-    if(payMode === 'CREDIT') {
-        paidAmt = parseFloat(document.getElementById('amtPaid').value) || 0;
-        dueAmt = grandTotal - paidAmt;
-        dueText = `<br><b style="color:red;">DUE: ₹${dueAmt}</b> | Date: ${document.getElementById('dueDate').value}`;
-    }
+    let paidAmt = payMode === 'CREDIT' ? (parseFloat(document.getElementById('amtPaid').value) || 0) : grandTotal;
+    let dueAmt = grandTotal - paidAmt;
 
     const billHTML = (type) => `
     <div class="bill-copy">
@@ -73,8 +102,9 @@ function renderBills() {
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2" class="note-box" contenteditable="true">
-                        <b>PAY MODE: ${payMode}</b><br>PAID: ₹${paidAmt} ${dueText}
+                    <td colspan="2" class="note-box">
+                        <b>PAY MODE: ${payMode}</b><br>
+                        ${payMode === 'CREDIT' ? `PAID: ₹${paidAmt} | <b style="color:black;">DUE: ₹${dueAmt}</b>` : ''}
                     </td>
                     <td class="lbl">BASIC</td><td class="val">${(grandTotal/1.18).toFixed(2)}</td>
                 </tr>
@@ -83,9 +113,11 @@ function renderBills() {
                 <tr><td colspan="2"></td><td class="lbl" style="font-size:14px;">TOTAL</td><td class="val" style="font-size:14px;">₹${grandTotal.toFixed(2)}</td></tr>
             </tfoot>
         </table>
-        <div class="rules" contenteditable="true">
-            <b>ખાસ સુચના:-</b><br>• મોબાઈલ ની વોરંટી કંપની ના નિયમો મુજબ રહેશે. બિલ વગર વોરંટી મળશે નહિ.<br>• મોબાઈલ માં પાણી જવાથી કે પડી જવાથી ડેમેજ ની જવાબદારી રહેશે નહિ.
+        
+        <div class="rules-box">
+            ${rulesText}
         </div>
+        
         <div class="footer"><span>CUSTOMER SIGNATURE</span><span>KEVAL MOBILE ZONE</span></div>
     </div>`;
 
@@ -93,78 +125,44 @@ function renderBills() {
 }
 
 function saveAndPrint() {
-    if(currentItems.length === 0) return alert("Please add an item before saving.");
+    if(currentItems.length === 0) return alert("Add items first.");
     
-    // Save to LocalStorage Database
     const db = JSON.parse(localStorage.getItem('kmz_db')) || [];
     const grandTotal = currentItems.reduce((a,b) => a + b.total, 0);
     const payMode = document.getElementById('payMode').value;
     const due = payMode === 'CREDIT' ? (grandTotal - (parseFloat(document.getElementById('amtPaid').value)||0)) : 0;
 
-    const record = {
-        id: Date.now(), // Unique ID
-        billNo: document.getElementById('inBillNo').value || "Auto",
+    db.push({
+        id: Date.now(),
+        billNo: document.getElementById('inBillNo').value,
         name: document.getElementById('inCustName').value,
+        mobile: document.getElementById('inCustMob').value,
         total: grandTotal,
+        payMode: payMode,
         due: due,
+        dateStr: new Date().toDateString(),
         date: new Date().toLocaleDateString('en-GB')
-    };
+    });
 
-    db.push(record);
     localStorage.setItem('kmz_db', JSON.stringify(db));
+    window.print();
     
-    window.print(); // Triggers the print dialog
-    
-    // Reset after print
     currentItems = []; 
-    document.getElementById('inBillNo').value = '';
     document.getElementById('inCustName').value = '';
     document.getElementById('inCustMob').value = '';
+    generateBillNumber(); // Setup next bill number
 }
 
-// LEDGER / HISTORY FUNCTIONS
 function showHistory() {
     const db = JSON.parse(localStorage.getItem('kmz_db')) || [];
-    const list = document.getElementById('billList');
-    
-    // Calculate Tally
-    let totalSales = 0;
-    let totalPending = 0;
-    
-    let html = '<table class="history-table"><tr><th>Bill</th><th>Customer</th><th>Total</th><th>Due</th><th>Action</th></tr>';
-    
-    db.reverse().forEach((b) => {
-        totalSales += b.total;
-        totalPending += b.due;
-        
-        let actionBtn = b.due > 0 
-            ? `<button onclick="markPaid(${b.id})" class="btn-sm-green">Mark Paid</button>` 
-            : `<span style="color:green; font-weight:bold;">✔ Settled</span>`;
-
-        html += `<tr>
-            <td>${b.billNo}</td>
-            <td>${b.name}<br><small>${b.date}</small></td>
-            <td>₹${b.total}</td>
-            <td style="color:${b.due > 0 ? 'red' : 'black'};"><b>₹${b.due}</b></td>
-            <td>${actionBtn}</td>
-        </tr>`;
+    let html = '<table class="history-table"><tr><th>Bill No</th><th>Customer</th><th>Total</th><th>Due</th></tr>';
+    db.reverse().forEach(b => {
+        html += `<tr><td>${b.billNo}</td><td>${b.name}<br>${b.mobile}</td><td>₹${b.total}</td><td style="color:${b.due > 0 ? 'red' : 'green'};">₹${b.due}</td></tr>`;
     });
-    
-    html += '</table>';
-    list.innerHTML = db.length ? html : "<p>No bills generated yet.</p>";
-    
-    document.getElementById('tallyTotal').innerText = `₹${totalSales.toFixed(2)}`;
-    document.getElementById('tallyPending').innerText = `₹${totalPending.toFixed(2)}`;
+    document.getElementById('billList').innerHTML = html + '</table>';
 }
 
-function markPaid(id) {
-    if(!confirm("Are you sure you received the pending amount?")) return;
-    
-    let db = JSON.parse(localStorage.getItem('kmz_db')) || [];
-    db = db.map(b => {
-        if(b.id === id) b.due = 0; // Clear the debt
-        return b;
-    });
-    localStorage.setItem('kmz_db', JSON.stringify(db));
-    showHistory(); // Refresh the list
+// Google Sheets Prep
+function syncToGoogleSheets() {
+    alert("Google Sheets Sync requires a Web App URL. Let's set that up next!");
 }
