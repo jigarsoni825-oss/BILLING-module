@@ -1,0 +1,231 @@
+/* style.css - Minimalist printed look */
+
+body {
+    font-family: 'Courier New', Courier, monospace; /* Standard receipt font */
+    font-size: 12px;
+    margin: 0;
+    padding: 10px;
+    background-color: #f0f0f0; /* So you see the paper edge on phone */
+}
+
+/* Page size setup */
+.invoice-container {
+    width: 210mm; /* A4 width */
+    max-width: 100%; /* Important for mobile display */
+    min-height: 297mm; /* A4 height */
+    background: white;
+    padding: 10mm;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Header Text Styles */
+.tax-invoice-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 5px;
+}
+
+.store-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.store-address {
+    font-size: 11px;
+}
+
+.gst-tin {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Header Grid Layout */
+.main-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    border-bottom: 1px solid black;
+    padding-bottom: 5px;
+}
+
+.header-left {
+    font-size: 11px;
+    width: 20%;
+}
+
+.header-center {
+    text-align: center;
+    width: 60%;
+}
+
+.header-right-numbers table {
+    font-size: 11px;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.header-right-numbers td {
+    border: 1px solid black;
+    padding: 2px 5px;
+    text-align: right;
+}
+
+/* Customer & Bill info */
+.customer-bill-section {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.field-row {
+    margin-bottom: 3px;
+}
+
+/* Table styling */
+.particulars-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.particulars-table th, .particulars-table td {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.particulars-table th {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Column Widths */
+.col-desc { width: 60%; }
+.col-qty { width: 10%; }
+.col-rate { width: 15%; }
+.col-amt { width: 15%; }
+
+/* Table Text alignment */
+.desc-cell br {
+    display: block; 
+    content: ""; 
+    margin-bottom: 4px;
+}
+
+.desc-cell .center-text {
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.qty-cell, .rate-amt-cell {
+    text-align: center;
+}
+
+.rate-label-cell {
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Note box inside table cell */
+.bottom-left-note-box {
+    border: none !important;
+    padding: 0 !important;
+}
+
+.note-box {
+    border: 1px solid black;
+    padding: 5px;
+    margin-top: -1px; /* Align to grid */
+}
+
+.bottom-fields {
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.bottom-fields .label {
+    font-weight: bold;
+}
+
+/* Tax/Total Styling */
+.tax-label, .total-label {
+    font-weight: bold;
+    text-align: right;
+}
+
+.total-row td {
+    background-color: #f9f9f9;
+}
+
+/* Loan/Salesman boxes */
+.loan-salesman-boxes {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.loan-salesman-boxes > div {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Gujarati Terms */
+.gujarati-terms {
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 11px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.terms-title {
+    margin-top: 5px;
+    margin-bottom: 3px;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.terms-list, .terms-list-bold {
+    margin: 5px 0;
+    padding-left: 15px;
+}
+
+.terms-list-bold li {
+    font-weight: bold;
+}
+
+/* Footer Sig */
+.invoice-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    border-top: 1px solid black;
+    padding-top: 5px;
+}
+
+.cust-sig { font-style: italic; }
+.store-sig { font-weight: bold; }
+.computer-gen { text-align: center; color: #555;}
+
+/* Standard Print Setup */
+@media print {
+    body { background: white; padding: 0; }
+    .invoice-container { box-shadow: none; border: none; margin: 0; }
+    @page {
+        size: A4;
+        margin: 0;
+    }
+}
+
