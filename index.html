@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keval Mobile Zone Console</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initSystem()">
+
+    <div class="admin-panel no-print">
+        <div class="console-header">
+            <span class="logo-icon">🏪</span>
+            <h2>Keval Mobile Zone Billing Console</h2>
+        </div>
+        
+        <div class="tabs">
+            <button onclick="switchTab('newBill')" id="tab-new" class="tab-btn active">📝 New Bill</button>
+            <button onclick="switchTab('history')" id="tab-hist" class="tab-btn">📂 Live History</button>
+            <button onclick="switchTab('settings')" id="tab-set" class="tab-btn">⚙️ Settings (Rules)</button>
+        </div>
+
+        <div id="newBillSection">
+            <div class="input-grid">
+                <div><label>Bill No (Auto):</label><input type="text" id="inBillNo" readonly style="background:#eee; font-weight:bold;"></div>
+                <div><label>Customer Name:</label><input type="text" id="inCustName"></div>
+                <div><label>Mobile Number:</label><input type="text" id="inCustMob"></div>
+                <div><label>Address:</label><input type="text" id="inCustAddr" value="Padra"></div>
+                
+                <div style="grid-column: 1 / -1;">
+                    <label>Internal Note (Hidden from Print - History Only):</label>
+                    <input type="text" id="inInternalNote" placeholder="e.g. Promised free screen guard next time...">
+                </div>
+
+                <hr style="grid-column: 1 / -1; width: 100%; border: 1px solid #ddd;">
+
+                <div><label>Item / Model:</label><input type="text" id="inItem"></div>
+                <div><label>IMEI No:</label><input type="text" id="inIMEI"></div>
+                <div><label>Total Price (₹):</label><input type="number" id="inPrice"></div>
+            </div>
+            
+            <div class="actions">
+                <button onclick="addItem()" class="btn-add">➕ Add to Invoice</button>
+            </div>
+
+            <div class="credit-section">
+                <label>Payment Mode:</label>
+                <select id="payMode" onchange="toggleCredit()">
+                    <option value="CASH">CASH</option>
+                    <option value="ONLINE">ONLINE</option>
+                    <option value="CREDIT">CREDIT</option>
+                </select>
+                <div id="creditInputs" style="display: none; margin-top: 10px;">
+                    <input type="number" id="amtPaid" placeholder="Advance Paid Now (₹)">
+                    <input type="date" id="dueDate">
+                </div>
+            </div>
+
+            <button onclick="saveAndPrint()" class="btn-print" style="width: 100%; margin-top: 15px;">💾 Save & Print</button>
+        </div>
+
+        <div id="historySection" style="display: none;">
+            <button onclick="syncToGoogleSheets()" class="btn-add" style="margin-bottom:10px;">☁️ Sync to Google Sheets</button>
+            <div id="billList" class="table-responsive"></div>
+        </div>
+
+        <div id="settingsSection" style="display: none;">
+            <label><strong>Invoice Rules & Terms (Edit like Excel):</strong></label>
+            <textarea id="rulesInput" rows="12" style="width:100%; padding:10px; font-family:monospace; font-size:12px; margin-top:10px;"></textarea>
+            <button onclick="saveRules()" class="btn-add" style="margin-top:10px;">Save Rules</button>
+        </div>
+    </div>
+
+    <div id="print-page"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
