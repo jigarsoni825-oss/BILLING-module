@@ -3,57 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMZ Professional Billing</title>
+    <title>KMZ APX System</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="initSystem()">
 
     <div class="admin-panel no-print">
-        <h2 class="app-title">📱 KMZ Shop Manager</h2>
+        <h2>🛠️ KMZ APX SYSTEM</h2>
         
         <div class="tabs">
-            <button onclick="switchTab('newBill')" id="tab-new" class="tab-btn active">📝 Create Bill</button>
-            <button onclick="showHistory()" id="tab-hist" class="tab-btn">📊 Sales & Ledger</button>
+            <button onclick="switchTab('newBill')" id="tab-new" class="tab-btn active">📝 New Bill</button>
+            <button onclick="switchTab('history')" id="tab-hist" class="tab-btn">📂 Live History</button>
+            <button onclick="switchTab('settings')" id="tab-set" class="tab-btn">⚙️ Settings (Rules)</button>
         </div>
 
         <div id="newBillSection">
             <div class="input-grid">
-                <input type="text" id="inCustName" placeholder="Customer Name (Required)">
-                <input type="text" id="inCustMob" placeholder="Mobile Number">
-                <input type="text" id="inBillNo" placeholder="Bill No (e.g. K101)">
-                <input type="text" id="inItem" placeholder="Model Name / Accessories">
-                <input type="text" id="inIMEI" placeholder="IMEI / Serial Number">
-                <input type="number" id="inPrice" placeholder="Final Price (₹)">
+                <div>
+                    <label>Bill No (Auto):</label>
+                    <input type="text" id="inBillNo" readonly style="background:#eee; font-weight:bold;">
+                </div>
+                <div>
+                    <label>Customer Name:</label>
+                    <input type="text" id="inCustName">
+                </div>
+                <div>
+                    <label>Mobile Number:</label>
+                    <input type="text" id="inCustMob">
+                </div>
+                <div>
+                    <label>Item / Model:</label>
+                    <input type="text" id="inItem">
+                </div>
+                <div>
+                    <label>IMEI No:</label>
+                    <input type="text" id="inIMEI">
+                </div>
+                <div>
+                    <label>Total Price (₹):</label>
+                    <input type="number" id="inPrice">
+                </div>
             </div>
             
             <div class="credit-section">
-                <label><strong>Payment Mode:</strong></label>
+                <label>Payment Mode:</label>
                 <select id="payMode" onchange="toggleCredit()">
-                    <option value="CASH">Cash</option>
-                    <option value="ONLINE">Online / UPI</option>
-                    <option value="CREDIT">Credit (Udhaar)</option>
+                    <option value="CASH">CASH</option>
+                    <option value="ONLINE">ONLINE</option>
+                    <option value="CREDIT">CREDIT</option>
                 </select>
-                
                 <div id="creditInputs" style="display: none; margin-top: 10px;">
                     <input type="number" id="amtPaid" placeholder="Advance Paid Now (₹)">
-                    <input type="date" id="dueDate" placeholder="Collection Date" style="width: 100%; margin-top:5px; padding:10px;">
+                    <input type="date" id="dueDate">
                 </div>
             </div>
 
             <div class="actions">
-                <button onclick="addItem()" class="btn-add">➕ Add to Bill</button>
-                <button onclick="saveAndPrint()" class="btn-print">💾 Save & Print Bill</button>
+                <button onclick="addItem()" class="btn-add">Add to Invoice</button>
+                <button onclick="saveAndPrint()" class="btn-print">Save & Print</button>
             </div>
         </div>
 
         <div id="historySection" style="display: none;">
-            <div class="tally-board">
-                <div class="tally-box green">Total Sales: <br><span id="tallyTotal">₹0</span></div>
-                <div class="tally-box red">Pending Udhaar: <br><span id="tallyPending">₹0</span></div>
-            </div>
-            <hr>
-            <h3>Recent Transactions</h3>
+            <button onclick="syncToGoogleSheets()" class="btn-print" style="margin-bottom:10px;">☁️ Sync to Google Sheets</button>
             <div id="billList" class="table-responsive"></div>
+        </div>
+
+        <div id="settingsSection" style="display: none;">
+            <label><strong>Invoice Rules & Terms (Edit like Excel):</strong></label>
+            <textarea id="rulesInput" rows="12" style="width:100%; padding:10px; font-family:monospace; font-size:12px; margin-top:10px;"></textarea>
+            <button onclick="saveRules()" class="btn-add" style="margin-top:10px;">Save Rules</button>
         </div>
     </div>
 
