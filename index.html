@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMZ Professional Billing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="admin-panel no-print">
+        <h2 class="app-title">📱 KMZ Shop Manager</h2>
+        
+        <div class="tabs">
+            <button onclick="switchTab('newBill')" id="tab-new" class="tab-btn active">📝 Create Bill</button>
+            <button onclick="showHistory()" id="tab-hist" class="tab-btn">📊 Sales & Ledger</button>
+        </div>
+
+        <div id="newBillSection">
+            <div class="input-grid">
+                <input type="text" id="inCustName" placeholder="Customer Name (Required)">
+                <input type="text" id="inCustMob" placeholder="Mobile Number">
+                <input type="text" id="inBillNo" placeholder="Bill No (e.g. K101)">
+                <input type="text" id="inItem" placeholder="Model Name / Accessories">
+                <input type="text" id="inIMEI" placeholder="IMEI / Serial Number">
+                <input type="number" id="inPrice" placeholder="Final Price (₹)">
+            </div>
+            
+            <div class="credit-section">
+                <label><strong>Payment Mode:</strong></label>
+                <select id="payMode" onchange="toggleCredit()">
+                    <option value="CASH">Cash</option>
+                    <option value="ONLINE">Online / UPI</option>
+                    <option value="CREDIT">Credit (Udhaar)</option>
+                </select>
+                
+                <div id="creditInputs" style="display: none; margin-top: 10px;">
+                    <input type="number" id="amtPaid" placeholder="Advance Paid Now (₹)">
+                    <input type="date" id="dueDate" placeholder="Collection Date" style="width: 100%; margin-top:5px; padding:10px;">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button onclick="addItem()" class="btn-add">➕ Add to Bill</button>
+                <button onclick="saveAndPrint()" class="btn-print">💾 Save & Print Bill</button>
+            </div>
+        </div>
+
+        <div id="historySection" style="display: none;">
+            <div class="tally-board">
+                <div class="tally-box green">Total Sales: <br><span id="tallyTotal">₹0</span></div>
+                <div class="tally-box red">Pending Udhaar: <br><span id="tallyPending">₹0</span></div>
+            </div>
+            <hr>
+            <h3>Recent Transactions</h3>
+            <div id="billList" class="table-responsive"></div>
+        </div>
+    </div>
+
+    <div id="print-page"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
